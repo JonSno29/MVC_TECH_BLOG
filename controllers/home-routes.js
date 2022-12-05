@@ -36,18 +36,49 @@ try {
   }
 });
 
-router.get('/login', async (req, res) => {
-  //TODO: If user is already logged in, redirect them to the profile page
-
-  //TODO: Else render the login handlebars
-
+router.get('/login', (req, res) => {
+  if (req.session.loggedIn) {
+    res.redirect("/");
+    return;
+  }
+  res.render("login");
 });
 
-router.get('/profile', async (req, res) => {
-  //TODO: Find all projects of the logged in user
+router.get("/signup", (req, res) => {
+  if (req.session.loggedIn) {
+    res.redirect("/");
+    return;
+  }
+res.render("signup");
+});
 
-  //TODO: Serialize the data from sequelize query
+router.get('/post/:id', async (req, res) => {
+  try {
+    const dbPostData = await Post.findOne({
+      where: {
+        id: req.params.id,
+      },
+      attributes: ["id", "content", "title", "created_at"],
+      include: [
+        {
+          model: Comment,
+          attributes: [
+            "id",
+            "comment_text",
+            "post_id",
+            "user_id",
+            "created_at",
+          ],
+          include: {
+            model: User,
+            attributes: ["username"],
+          },
+        },
+        {
+          model: User,
+          attributes: ["username"],
+        },
+      ],
+    });
 
-  //TODO: Render the profile handlebars
 
-})
